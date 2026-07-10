@@ -17,5 +17,5 @@ let package = Package(
             cxxSettings: [.unsafeFlags(["-fobjc-arc"])]
         )
     ],
-    cxxLanguageStandard: .cxx17
+    cxxLanguageStandard: .gnucxx17
 )
