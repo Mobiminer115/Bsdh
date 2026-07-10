@@ -90,7 +90,7 @@ static __weak GameOptimizerOverlayController *gGOCurrentController = nil;
     self.button = [[GameOptimizerFloatingButton alloc] init];
     self.button.center = CGPointMake(self.rootViewController.view.bounds.size.width - 40,
                                       self.rootViewController.view.bounds.size.height * 0.35);
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     self.button.onTap = ^{ [weakSelf toggle]; };
     [self.rootViewController.view addSubview:self.button];
     [self.button clampIntoSafeAreaOfView:self.rootViewController.view animated:NO];
