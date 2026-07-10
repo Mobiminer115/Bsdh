@@ -42,10 +42,6 @@ using namespace GameOptimizer;
     return y + 42;
 }
 
-- (void)viewDidMoveToWindow {
-    [super viewDidMoveToWindow];
-}
-
 - (void)willMoveToParentViewController:(nullable UIViewController *)parent {
     [super willMoveToParentViewController:parent];
     if (parent == nil) {
@@ -65,7 +61,7 @@ using namespace GameOptimizer;
     [self.pollTimer invalidate];
     GameOptimizerConfiguration c = GameOptimizerCore::Shared().GetConfiguration();
     NSTimeInterval interval = c.uiMetricsUpdateRateHz > 0.01 ? (1.0 / c.uiMetricsUpdateRateHz) : 0.5;
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     self.pollTimer = [NSTimer scheduledTimerWithTimeInterval:interval repeats:YES block:^(NSTimer * _Nonnull timer) {
         [weakSelf refresh];
     }];
