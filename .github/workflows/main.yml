@@ -31,33 +31,50 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Archive for iOS device (arm64)
+      - name: Build for iOS device (arm64)
         run: |
-          xcodebuild archive \
+          xcodebuild build \
             -scheme GameOptimizer \
             -destination "generic/platform=iOS" \
-            -archivePath build/GameOptimizer-iOS.xcarchive \
+            -configuration Release \
+            -derivedDataPath build/DerivedData-iOS \
             -skipPackagePluginValidation \
             SKIP_INSTALL=NO \
             BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
 
-      - name: Archive for iOS Simulator
+      - name: Build for iOS Simulator
         run: |
-          xcodebuild archive \
+          xcodebuild build \
             -scheme GameOptimizer \
             -destination "generic/platform=iOS Simulator" \
-            -archivePath build/GameOptimizer-iOSSimulator.xcarchive \
+            -configuration Release \
+            -derivedDataPath build/DerivedData-iOS-Simulator \
             -skipPackagePluginValidation \
             SKIP_INSTALL=NO \
             BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+
+      - name: Locate built frameworks (debug aid)
+        run: |
+          echo "--- device tree ---"
+          find build/DerivedData-iOS/Build/Products -maxdepth 4 -name "*.framework" -o -maxdepth 4 -name "PackageFrameworks"
+          echo "--- simulator tree ---"
+          find build/DerivedData-iOS-Simulator/Build/Products -maxdepth 4 -name "*.framework" -o -maxdepth 4 -name "PackageFrameworks"
 
       - name: Create XCFramework
         run: |
+          DEVICE_FW=$(find build/DerivedData-iOS/Build/Products -name "GameOptimizer.framework" -not -path "*Simulator*" | head -n1)
+          SIM_FW=$(find build/DerivedData-iOS-Simulator/Build/Products -name "GameOptimizer.framework" | head -n1)
+          echo "Device framework:    $DEVICE_FW"
+          echo "Simulator framework: $SIM_FW"
+          if [ -z "$DEVICE_FW" ] || [ -z "$SIM_FW" ]; then
+            echo "::error::Could not locate GameOptimizer.framework in one of the build outputs — see 'Locate built frameworks' step above."
+            exit 1
+          fi
           xcodebuild -create-xcframework \
-            -framework build/GameOptimizer-iOS.xcarchive/Products/Library/Frameworks/GameOptimizer.framework \
-            -framework build/GameOptimizer-iOSSimulator.xcarchive/Products/Library/Frameworks/GameOptimizer.framework \
+            -framework "$DEVICE_FW" \
+            -framework "$SIM_FW" \
             -output build/GameOptimizer.xcframework
 
       - name: Zip XCFramework
