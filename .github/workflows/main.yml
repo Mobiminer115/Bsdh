@@ -73,11 +73,8 @@ jobs:
             -framework "$SIM_FW" \
             -output build/GameOptimizer.xcframework
 
-      - name: Zip XCFramework
-        run: cd build && zip -r GameOptimizer.xcframework.zip GameOptimizer.xcframework
-
       - uses: actions/upload-artifact@v4
         with:
           name: GameOptimizer-xcframework
-          path: build/GameOptimizer.xcframework.zip
+          path: build/GameOptimizer.xcframework
           if-no-files-found: error
